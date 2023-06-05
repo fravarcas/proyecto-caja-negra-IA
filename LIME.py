@@ -36,34 +36,42 @@ def LIMEAlgorithm(data, f, N, max_attributes, min_attributes):
     for i in range (1, N):
 
         attributes = np.random.choice(np.random.randint(1, f.size()),np.random.randint(1, f.size()))
-        tuple_R = tuple()
-        tuple_W = tuple()
-        tuple_X = tuple()
+        element_R = []
+        element_W = []
+        element_X = []
 
-        for j in range(0, data.size()):
+        for j in range(0, data.size() - 1):
 
             if j in attributes:
 
-                tuple_R = tuple_R + (0)
+                element_R.append(0)
                 modifiedAttribute = np.random.randint(min_attributes[j], max_attributes[j])
-                tuple_X = tuple_X + (modifiedAttribute)
+                element_X.append(modifiedAttribute)
 
             else:
 
-                tuple_R = tuple_R + (1)
-                tuple_X = tuple_X + (data[j])
+                element_R.append(1)
+                element_X.append(data[j])
             
 
-            tuple_W = tuple_W + (cosine_distance(tuple_X, data))
+            element_W = element_W + (cosine_distance(element_X, data))
 
-            X.append(tuple_X)
-            R.append(tuple_R)
-            W.append(tuple_W)
+            X.append(element_X)
+            R.append(element_R)
+            W.append(element_W)
+
+    R_ponderada = []
+
+    for sublist1, sublist2 in zip(R, W):
+        sublist_result = []
+        for num1, num2 in zip(sublist1, sublist2):
+            sublist_result.append(num1 * num2)
+        R_ponderada.append(sublist_result)
 
     Y = [f(x) for x in X]
 
     G = Ridge(alpha=1.0)
-    G.fit(R, Y)
+    G.fit(R_ponderada, Y)
 
     return 
 
