@@ -54,7 +54,7 @@ def LIMEAlgorithm(data, f, N, max_attributes, min_attributes):
                 element_X.append(data[j])
             
 
-            element_W = element_W + (cosine_distance(element_X, data))
+            element_W.append(cosine_distance(element_X, data))
 
             X.append(element_X)
             R.append(element_R)
@@ -62,11 +62,17 @@ def LIMEAlgorithm(data, f, N, max_attributes, min_attributes):
 
     R_ponderada = []
 
-    for sublist1, sublist2 in zip(R, W):
-        sublist_result = []
-        for num1, num2 in zip(sublist1, sublist2):
-            sublist_result.append(num1 * num2)
-        R_ponderada.append(sublist_result)
+    for i in range(len(R)):
+        num = W[i]
+        sublist = R[i]
+        R_muestra_ponderada = []
+        for j in range(len(sublist)):
+            res = num * sublist[j]
+            R_muestra_ponderada.append(res)
+        R_ponderada.append(R_muestra_ponderada)
+
+        
+
 
     Y = [f(x) for x in X]
 
