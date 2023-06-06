@@ -119,3 +119,18 @@ def identidad(muestra_1, muestra_2):
     
     else:
         print('estas muestras no son identicas')
+        
+        
+def coherencia(p,e):
+    diferencia=abs(p-e)
+    return diferencia
+
+
+def completitud(error_explicacion, error_prediccion):
+    return error_explicacion / error_prediccion
+
+completitud_resultado = completitud(error_explicacion, error_prediccion)
+porcentaje_completitud = completitud_resultado * 100
+
+print(f"La completitud es: {porcentaje_completitud}")
+
