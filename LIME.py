@@ -5,7 +5,7 @@ import sklearn as sk
 from sklearn.linear_model import Ridge
 from sklearn.ensemble import RandomForestClassifier
 from sklearn import model_selection
-
+from scipy.stats import spearmanr
 
 adults = pd.read_csv('adult.data', header=None,
                        names=['age', 'workclass', 'fnlwgt', 'education',
@@ -121,16 +121,84 @@ def identidad(muestra_1, muestra_2):
         print('estas muestras no son identicas')
         
         
+        
+def separabilidad(muestra_1, muestra_2,explicacion_a, explicacion_b, umbral_distancia=1e-6):
+    distacia_muestras_ab=cosine_distance(muestra_1, muestra_2)
+    if distancia_muestras_ab == 0:
+        return True
+    
+    distancia_explicaciones_ab=cosine_distance(explicacion_a, explicacion_b)
+    if distancia_explicaciones_ab<=umbral_distancia:
+        return False
+    return True
+
+def estabilidad(explanations, perturbation):
+    num_objects = len(explanations)
+    distances_original = []
+    distances_perturbed = []
+    
+    for i in range(num_objects):
+        distance_original = d(explanations[i], explanations[0]) 
+        distances_original.append(distance_original)
+        
+        distance_perturbed = d(perturbations[i], perturbations[0]) 
+        distances_perturbed.append(distance_perturbed)
+        
+        
+    correlation, _ = spearmanr(distances_original, distances_perturbed)
+    
+    return correlation
+       
+def selectividad(training_atribute, training_goal, test_atribute, test_goal):
+
+    y_pred_orig = model.predict(test_atribute)
+
+
+    auc_orig = roc_auc_score(test_goal, y_pred_orig)
+
+
+    num_features = training_atribute.shape[1]
+
+
+    auc_values = []
+
+
+    for i in range(num_features):
+        X_test_modified = test_atribute.copy()
+        X_test_modified[:, i] = 0 
+    
+     
+        y_pred_modified = model.predict(X_test_modified)
+    
+    
+        auc_modified = roc_auc_score(training_goal, y_pred_modified)
+    
+  
+        auc_change = auc_orig - auc_modified
+    
+    
+        auc_values.append(auc_change)
+
+
+    selectivity = np.sum(auc_values)
+
+    return selectivity
+
+        
 def coherencia(p,e):
     diferencia=abs(p-e)
     return diferencia
 
 
 def completitud(error_explicacion, error_prediccion):
-    return error_explicacion / error_prediccion
+    return (error_explicacion / error_prediccion) *100
 
-completitud_resultado = completitud(error_explicacion, error_prediccion)
-porcentaje_completitud = completitud_resultado * 100
 
-print(f"La completitud es: {porcentaje_completitud}")
-
+def congruencia(coherencia):
+    n=len(coherencia)
+    promedio=sum(coherencia)/n
+    suma=sum((a-promedio)**2 for a in coherencia)
+    result = math.sqrt(suma/n)
+    return result
+    
+    
